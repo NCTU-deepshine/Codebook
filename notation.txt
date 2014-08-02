@@ -1,4 +1,4 @@
-1. 注意 long long
+1. 注意 long long (數量級分析 -> 時間複雜度)
 2. stack overflow
 3. Segment tree -> node 為 MAX * 4
 4. 點心！！
