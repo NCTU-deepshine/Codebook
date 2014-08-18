@@ -2,7 +2,7 @@ import java.util.*;
 
 /**
  * A magical data structure.
- * Written on 103.07.24
+ * Written on 103.08.18
  */
 public class Treap<K, V>{
 
@@ -17,7 +17,14 @@ public class Treap<K, V>{
 	}
 
 	Entry find(K key){
-		return null;
+		Entry now = root;
+		Comparable<? super K> cmp = (Comparable<? super K>)key;
+		int situation;
+		while((now != null) && (situation=cmp.compareTo(now.key)) != 0){
+			if(situation == -1) now = now.lchild;
+			else now = now.rchild;
+		}
+		return now;
 	}
 
 	Entry[] split(Comparable<? super K> cmp){
@@ -31,7 +38,8 @@ public class Treap<K, V>{
 					right = right.lchild = current;
 				}
 				current = current.lchild;
-				right.lchild = current.parent = null;
+				right.lchild = null;
+				if(current != null) current.parent = null;
 			}else{
 				if(left == null){
 					left = leftTree = current;
@@ -39,7 +47,8 @@ public class Treap<K, V>{
 					left = left.rchild = current;
 				}
 				current = current.rchild;
-				left.rchild = current.parent = null;
+				left.rchild = null;
+				if(current != null) current.parent = null;
 			}
 		}
 		return new Treap.Entry[]{leftTree, rightTree};
@@ -73,7 +82,7 @@ public class Treap<K, V>{
 				temp.parent = null;
 				merge(temp, right);
 			}else{
-				merge(right, left.rchild);
+				merge(left.rchild, right);
 			}
 			return left;
 		}
@@ -82,6 +91,7 @@ public class Treap<K, V>{
 	V puts(K key, V value){
 		if(root == null){
 			root = new Entry(key, value);
+			size++;
 			return null;
 		}
 		Entry position = find(key);
@@ -95,10 +105,34 @@ public class Treap<K, V>{
 		Entry[] subtree = split(cmp);
 		newEntry = merge(subtree[0], newEntry);
 		root = merge(newEntry, subtree[1]);
+		size++;
 		return null;
 	}
 
+	void remove(K key){
+		Entry target = find(key);
+		if(target == null) return;
+		target.lchild.parent = target.rchild.parent = null;
+		Entry child = merge(target.lchild, target.rchild);
+		child.parent = target.parent;
+		if(target == target.parent.lchild) target.parent.lchild = child;
+		else if(target == target.parent.rchild) target.parent.rchild = child;
+		else throw new AssertionError("remove fail");
+		size--;
+	}
 
+	/**
+	 * This is a debugger
+	 * @param now the node doing a in order traversal
+	 * @return the size of the subtree rooted at now
+	 */
+	int iterate(Entry now){
+		if(now == null) return 0;
+		int result = 1;
+		result += iterate(now.lchild);
+		result += iterate(now.rchild);
+		return result;
+	}
 
 	class Entry implements Comparable<Entry>{
 		Entry parent, lchild, rchild;
@@ -121,4 +155,5 @@ public class Treap<K, V>{
 			return result;
 		}
 	}
+
 }
