@@ -2,7 +2,7 @@ import java.util.*;
 
 /**
  * A magical data structure.
- * Written on 103.08.18
+ * Written on 103.08.19
  */
 public class Treap<K, V>{
 
@@ -10,12 +10,20 @@ public class Treap<K, V>{
 	int time, size;
 	Entry root;
 
+	/**
+	 * Default Constructor
+	 */
 	Treap(){
 		root = null;
 		time = size = 0;
 		priorityGenerator = new Random();
 	}
 
+	/**
+	 * Find the Entry associated with key
+	 * @param key the key of the entry you are looking for
+	 * @return Entry
+	 */
 	Entry find(K key){
 		Entry now = root;
 		Comparable<? super K> cmp = (Comparable<? super K>)key;
@@ -27,6 +35,12 @@ public class Treap<K, V>{
 		return now;
 	}
 
+	/**
+	 * Split the treap based on the key
+	 * Behavior undefined if the specified key is already in the tree
+	 * @param cmp Comparable based on the key
+	 * @return an array consists of two elements, the left subtree and the right
+	 */
 	Entry[] split(Comparable<? super K> cmp){
 		Entry leftTree = null, rightTree = null, left = null, right = null;
 		Entry current = root;
@@ -35,6 +49,7 @@ public class Treap<K, V>{
 				if(right == null){
 					right = rightTree = current;
 				}else{
+					current.parent = right;
 					right = right.lchild = current;
 				}
 				current = current.lchild;
@@ -44,6 +59,7 @@ public class Treap<K, V>{
 				if(left == null){
 					left = leftTree = current;
 				}else{
+					current.parent = left;
 					left = left.rchild = current;
 				}
 				current = current.rchild;
@@ -54,6 +70,13 @@ public class Treap<K, V>{
 		return new Treap.Entry[]{leftTree, rightTree};
 	}
 
+	/**
+	 * Merge two Treaps into one.
+	 * All keys of the entries in the left must be smaller than all keys of the entries in the right
+	 * @param left the left Treap, it must be smaller than the right Treap
+	 * @param right the right Treap, it must be greater than the left Treap
+	 * @return root of the resulting Treap
+	 */
 	Entry merge(Entry left, Entry right){
 		if(left == null) return right;
 		if(right == null) return left;
@@ -88,6 +111,13 @@ public class Treap<K, V>{
 		}
 	}
 
+	/**
+	 * Insert a new Entry into the Treap if the key doesn't exists
+	 * Else replace the value with the new one and return the old value
+	 * @param key the key of the entry to be inserted or modified
+	 * @param value the new value of the entry
+	 * @return The original value if entry already exists, else return null;
+	 */
 	V puts(K key, V value){
 		if(root == null){
 			root = new Entry(key, value);
@@ -109,16 +139,27 @@ public class Treap<K, V>{
 		return null;
 	}
 
-	void remove(K key){
+	/**
+	 * Remove the entry associated with the specified key
+	 * return the according value upon removing
+	 * @param key the key of the entry to be destroyed
+	 * @return the value associated with the specified key, return null if no such key exists
+	 */
+	V remove(K key){
 		Entry target = find(key);
-		if(target == null) return;
-		target.lchild.parent = target.rchild.parent = null;
+		if(target == null) return null;
+		if(target.lchild!=null) target.lchild.parent = null;
+		if(target.rchild!=null) target.rchild.parent = null;
 		Entry child = merge(target.lchild, target.rchild);
-		child.parent = target.parent;
-		if(target == target.parent.lchild) target.parent.lchild = child;
-		else if(target == target.parent.rchild) target.parent.rchild = child;
-		else throw new AssertionError("remove fail");
+		if(child != null) child.parent = target.parent;
+		if(target.parent != null){
+			if(target == target.parent.lchild) target.parent.lchild = child;
+			else if(target == target.parent.rchild) target.parent.rchild = child;
+			else throw new AssertionError("remove fail");
+		}else if(root == target) root = child;
+		else throw new AssertionError("What is this?");
 		size--;
+		return target.value;
 	}
 
 	/**
@@ -126,14 +167,22 @@ public class Treap<K, V>{
 	 * @param now the node doing a in order traversal
 	 * @return the size of the subtree rooted at now
 	 */
-	int iterate(Entry now){
+	int iterate(Entry now, Entry parent){
 		if(now == null) return 0;
+		//System.out.println("Iterate "+now.key);
+		if(now.parent != parent) System.out.println("Parent Check Fail!!!");
 		int result = 1;
-		result += iterate(now.lchild);
-		result += iterate(now.rchild);
+		result += iterate(now.lchild, now);
+		//System.out.println("Entry : "+now.key);
+		result += iterate(now.rchild, now);
 		return result;
 	}
 
+	/**
+	 * The class storing all the entries of Treap
+	 * each Entry consists of a key and a value and a random generated priority
+	 * also stores its parent and children as well
+	 */
 	class Entry implements Comparable<Entry>{
 		Entry parent, lchild, rchild;
 		Integer priority, timestamp;
