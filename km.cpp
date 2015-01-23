@@ -28,6 +28,14 @@ bool find(int i) {
 }
 
 int weighted_hangarian() {
+
+    /* remember to initial weight_x (max weight of node's edge)*/
+    /* initialize */
+    for (int i = 0; i < num; ++i) {
+        weight_y[i] = 0;
+        parent[i] = -1;
+    }
+
     for (int i = 0; i < num; ++i) {
         while (1) {
             memset(visit_x, false, sizeof(visit_x));
@@ -55,7 +63,7 @@ int weighted_hangarian() {
     }
 
     int ans = 0;
-    for (int i = 0; i < num - 1; ++i) {
+    for (int i = 0; i < num; ++i) {
         ans += weight_x[i];
         ans += weight_y[i];
     }
