@@ -1,3 +1,4 @@
+/* O(V^2) */
 #include <iostream>
 #include <cstdio>
 #define MAX 10000
