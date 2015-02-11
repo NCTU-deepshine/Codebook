@@ -2,3 +2,5 @@
 2. stack overflow
 3. Segment tree -> node 為 MAX * 4
 4. 點心！！
+
+ps. compile tex using texlive.
