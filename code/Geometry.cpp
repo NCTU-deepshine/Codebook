@@ -12,13 +12,28 @@ typedef double T;
 struct POS {
     int x, y;
 
-    POS(const T& x, const T& y) : x(x), y(y) {}
+    POS(const T& x = 0, const T& y = 0) : x(x), y(y) {}
     POS(const POS& x) : x(x.x), y(x.y) {}
 
     bool operator==(const POS& rhs) const {
         return x == rhs.x && y == rhs.y;
     }
+
+    POS& operator+=(const POS& rhs) {
+        x += rhs.x;
+        y += rhs.y;
+        return *this;
+    }
+
+    friend ostream& operator<<(ostream& out, const POS& pos) {
+        out << pos.x << " " << pos.y;
+        return out;
+    }
 };
+
+POS const operator+(const POS& lhs, const POS& rhs) {
+    return POS(lhs) += rhs;
+}
 
 struct LINE {
     POS start, end, vec;
@@ -42,6 +57,11 @@ struct LINE {
         this->end.y += y;
         this->vec.x += x;
         this->vec.y += y;
+    }
+
+    bool operator==(const LINE& rhs) { /* to see if this line parallel to LINE rhs */
+        if (this->vec.y == 0 && rhs.vec.y == 0) return true;
+        return (fabs(this->vec.x/(double)this->vec.y - rhs.vec.x/(double)rhs.vec.y) < EPS);
     }
 };
 
