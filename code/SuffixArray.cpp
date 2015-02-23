@@ -1,6 +1,4 @@
-/*
-Time Complexity=2*n*log(n)*log(n)
-*/
+/* Time Complexity=2*n*log(n)*log(n) */
 #include <cstdio>
 #include <algorithm>
 using namespace std;
@@ -26,9 +24,14 @@ public:
         for(length=0;refer[length]!='\0';length++);
         rankOfIndex=new int[length];
         indexOfRank=new int[length];
-        texi=new Weight[length];
+        texi=new Weight[length];//=
         firstsort();
         for(int know=1;know<=length;know<<=1) doublesort(know);
+    }
+    ~SuffixArray() {
+        delete [] rankOfIndex;
+        delete [] indexOfRank;
+        delete [] texi;
     }
 
     void firstsort(){
@@ -79,7 +82,9 @@ public:
 
 int main()
 {
-    SuffixArray a("aaaaaaaaa");
+    char str[100];
+    scanf("%s", str);
+    SuffixArray a(str);
     a.printall();
     return 0;
 }
