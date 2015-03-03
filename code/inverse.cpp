@@ -2,17 +2,19 @@
 
 using namespace std;
 
-int inverse(int a, int b) { /* return b^(-1) mod a */
-    int k[2][2], n[2][2], u1, u2;
+typedef long long T;
+
+T inverse(T mod, T b) { /* return b^(-1) mod a */
+    T k[2][2], n[2][2], u1, u2;
 
     k[0][0] = k[1][1] = 1;
     k[0][1] = k[1][0] = 0;
     
-    u1 = a, u2 = b;
+    u1 = mod, u2 = b;
     
     while (u2) {
-        int div = u1/u2;
-        int remind = u1%u2;
+        T div = u1/u2;
+        T remind = u1%u2;
         
         n[0][0] = k[1][0];
         n[0][1] = k[1][1];
@@ -28,7 +30,7 @@ int inverse(int a, int b) { /* return b^(-1) mod a */
         u2 = remind;
     }
 
-    if (k[0][1] < 0) k[0][1] += a;
+    if (k[0][1] < 0) k[0][1] += mod;
     return k[0][1];
 }
 
