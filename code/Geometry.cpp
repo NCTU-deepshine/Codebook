@@ -4,14 +4,18 @@
 #include <cstdio>
 #include <algorithm>
 #define EPS 1e-10
+#define LEFT_TOP POS(100, 100)
+#define NO_INTERSECT POS(-1, -1)
+#define PARALLEL POS(-1, -1)
+#define COLINE POS(0, 0)
 
 using namespace std;
 
 typedef double T;
 
-struct POS {
-    int x, y;
-
+class POS {
+public:
+    T x, y;
     POS(const T& x = 0, const T& y = 0) : x(x), y(y) {}
     POS(const POS& x) : x(x.x), y(x.y) {}
 
@@ -25,6 +29,11 @@ struct POS {
         return *this;
     }
 
+    POS operator -() {
+        POS tmp(-x, -y);
+        return tmp;
+    }
+
     friend ostream& operator<<(ostream& out, const POS& pos) {
         out << pos.x << " " << pos.y;
         return out;
@@ -35,19 +44,25 @@ POS const operator+(const POS& lhs, const POS& rhs) {
     return POS(lhs) += rhs;
 }
 
-struct LINE {
-    POS start, end, vec;
+POS const operator-(const POS& lhs, const POS& rhs) {
+    POS tmp = rhs;
+    tmp = -tmp;
+    return POS(lhs) += (tmp);
+}
 
+class LINE {
+public:
+    POS start, end, vec;
     LINE(const T& st_x, const T& st_y, const T& ed_x, const T& ed_y) :
-        start(st_x, st_y), end(ed_x, ed_y), vec(end.x - start.x, end.y - start.y) {}
+        start(st_x, st_y), end(ed_x, ed_y), vec(end - start) {}
 
     LINE(const POS& start, const POS& end) :
-        start(start), end(end), vec(end.x - start.x, end.y - start.y) {}
+        start(start), end(end), vec(end - start) {}
 
     LINE(const POS& end) : /* start point is origin */
-        start(0, 0), end(end), vec(end.x, end.y) {}
+        start(0, 0), end(end), vec(end) {}
 
-    T length2() { /* square */
+    T length2() const { /* square */
         T x = start.x - end.x, y = start.y - end.y;
         return x*x + y*y;
     }
@@ -59,22 +74,113 @@ struct LINE {
         this->vec.y += y;
     }
 
-    bool operator==(const LINE& rhs) { /* to see if this line parallel to LINE rhs */
-        if (this->vec.y == 0 && rhs.vec.y == 0) return true;
-        return (fabs(this->vec.x/(double)this->vec.y - rhs.vec.x/(double)rhs.vec.y) < EPS);
+    bool on_line(const POS& a) const {
+        if (vec.x == 0) {
+            if (start.x != a.x) return false;
+            return true;
+        }
+        if (vec.y == 0) {
+            if (start.y != a.y) return false;
+            return true;
+        }
+        return ( (a.x-start.x)/vec.x*vec.y + start.y ) == a.y;
+    }
+
+    bool operator/(const LINE& rhs) const { /* to see if this line parallel to LINE rhs */
+        return (vec.x*rhs.vec.y == vec.y*rhs.vec.x);
+    }
+
+    bool operator==(const LINE& rhs) const { /* to see if they are same line */
+        return (*this/rhs) && (rhs.on_line(start));
+    }
+
+    POS intersect(const LINE& rhs) const {
+        if (*this==rhs) return COLINE; /* return co-line */
+        if (*this/rhs) return PARALLEL; /* return parallel */
+
+        double A1 = vec.y, B1 = -vec.x, C1 = end.x*start.y - start.x*end.y;
+        double A2 = rhs.vec.y, B2 = -rhs.vec.x, C2 = rhs.end.x*rhs.start.y - rhs.start.x*rhs.end.y;
+        return POS( (B2*C1-B1*C2)/(A2*B1-A1*B2), (A1*C2-A2*C1)/(A2*B1-A1*B2) ); /* sometimes has -0 */
+    }
+
+    friend ostream& operator<<(ostream& out, const LINE& line) {
+        cout << line.start << "-->" << line.end << endl;
+        return out;
     }
 };
 
-struct POLYGON {
+class LINESEG : public LINE {
+public:
+    LINESEG() : LINE(POS(0, 0)) {}
+    LINESEG(const LINE& input) : LINE(input) {}
+    LINESEG(const POS& start, const POS& end) : LINE(start, end) {}
+
+    bool on_lineseg(const POS& a) const {
+        if (!on_line(a)) return false;
+        bool first, second;
+        if (vec.x >= 0) first = (a.x >= start.x)&&(a.x <= end.x);
+        else first = (a.x <= start.x)&&(a.x >= end.x);
+        if (vec.y >= 0) second = (a.y >= start.y)&&(a.y <= end.y);
+        else second = (a.y <= start.y)&&(a.y >= end.y);
+        return first&&second;
+    }
+
+    bool operator==(const LINESEG& rhs) const {
+        return ( (rhs.start == start && rhs.end == end) ||
+              (rhs.start == end && rhs.end == start) );
+    }
+
+    bool operator==(const LINE& rhs) const {
+        return this->LINE::operator==(rhs);
+    }
+
+    T dot(const LINESEG& rhs) const {
+        return vec.x*rhs.vec.x + vec.y*rhs.vec.y;
+    }
+    
+    T cross(const LINESEG& rhs) const {
+        return vec.x*rhs.vec.y - vec.y*rhs.vec.x;
+    }
+
+    bool clockwise(const LINE& a) const { /* to see if LINE a is in b's clockwise way */
+        return cross(a) > 0;
+    }
+
+    POS intersect(const LINESEG& rhs) const {
+        LINE a1b1(start, rhs.start);
+        LINE a1b2(start, rhs.end);
+        LINE b1a1(rhs.start, start);
+        LINE b1a2(rhs.start, end);
+
+        POS tmp(this->LINE::intersect(rhs));
+
+        if (tmp == COLINE) { 
+            if ( (start==rhs.start) && (!rhs.on_lineseg(end)) && (!on_lineseg(rhs.end)) ) return start;
+            if ( (start==rhs.end) && (!rhs.on_lineseg(end)) && (!on_lineseg(rhs.start)) ) return start;
+            if ( (end==rhs.start) && (!rhs.on_lineseg(start)) && (!on_lineseg(rhs.end)) ) return end;
+            if ( (end==rhs.end) && (!rhs.on_lineseg(start)) && (!on_lineseg(rhs.start)) ) return end;
+            if (on_lineseg(rhs.start) || on_lineseg(rhs.end) || rhs.on_lineseg(start) || rhs.on_lineseg(end)) return COLINE;
+            return NO_INTERSECT;
+        }
+
+        bool intersected =  ( (cross(a1b1)*cross(a1b2)<0) && (rhs.cross(b1a1)*rhs.cross(b1a2)<0) );
+        if (!intersected) return NO_INTERSECT;
+        if (!on_lineseg(tmp) || !rhs.on_lineseg(tmp)) return NO_INTERSECT;
+        return tmp;
+    }
+};
+
+class POLYGON {
+public:
     vector<POS> point;
     vector<LINE> line;
 
     void add_points(const POS& x) {
         point.push_back(x);
     }
+
     void add_points(const int& x, const int& y) {
-        POS tmp(x, y);
-        point.push_back(tmp);
+        point.push_back(POS(x,y));
     }
 
     void build_line() {
@@ -84,85 +190,60 @@ struct POLYGON {
         }
         line.push_back(LINE(point[0], point[point.size()-1]));
     }
-};
 
-inline T A_dot_B(const LINE& a, const LINE& b) {
-    return a.vec.x*b.vec.x + a.vec.y*b.vec.y;
-}
+    double area() {
+        double ans = 0;
 
-inline T A_cross_B(const LINE& a, const LINE& b) {
-    return a.vec.x*b.vec.y - a.vec.y*b.vec.x;
-}
-
-inline bool clockwise(const LINE& a, const LINE& b) { /* to see if LINE a is in b's clockwise way */
-    return A_cross_B(a, b) > 0;
-}
-
-bool A_intersect_B(const LINE& a, const LINE& b) { /* if is intersect on end point, it will return false */
-    LINE a1b1(a.start, b.start);
-    LINE a1b2(a.start, b.end);
-    LINE b1a1(b.start, a.start);
-    LINE b1a2(b.start, a.end);
-    return ( (A_cross_B(a, a1b1)*A_cross_B(a, a1b2)<0) && (A_cross_B(b, b1a1)*A_cross_B(b, b1a2)<0) );
-}
-
-double polygon_area(const POLYGON& polygon) {
-    double ans = 0;
-
-    vector<LINE> tmp;
-    for (int i = 0; i < polygon.point.size(); ++i) {
-        tmp.push_back(LINE(polygon.point[i]));
-    }
-    tmp.push_back(LINE(polygon.point[0]));
-
-    for (int i = 1; i < tmp.size(); ++i) {
-        ans += A_cross_B(tmp[i-1], tmp[i]);
-    }
-    return 0.5*fabs(ans);
-}
-
-bool on_line(const POS& a, LINE& b) {
-    double ab1 = sqrt((a.x-b.start.x)*(a.x-b.start.x) + (a.y-b.start.y)*(a.y-b.start.y));
-    double ab2 = sqrt((a.x-b.end.x)*(a.x-b.end.x) + (a.y-b.end.y)*(a.y-b.end.y));
-    double b1b2 = sqrt(b.length2());
-    return fabs(ab1+ab2-b1b2) < EPS;
-}
-
-bool in_polygon(const POS& a, POLYGON& polygon, const POS& left_top) {
-    for (int i = 0; i < polygon.point.size(); ++i) {
-        if (a == polygon.point[i]) return false; /* a is polygon's point */
-    }
-
-    polygon.build_line();
-    for (int i = 0; i < polygon.line.size(); ++i) {
-        if (on_line(a, polygon.line[i])) {
-            return true; /* a is on polygon's line */
+        vector<LINESEG> tmp;
+        for (int i = 0; i < point.size(); ++i) {
+            tmp.push_back(LINESEG(point[i]));
         }
+        tmp.push_back(LINESEG(point[0]));
+
+        for (int i = 1; i < tmp.size(); ++i) {
+            ans += tmp[i-1].cross(tmp[i]);
+        }
+        return 0.5*fabs(ans);
     }
 
-    POS endpoint(left_top); /* should be modified according to problem */
-    LINE ray(a, endpoint);
-    bool touch_endpoint = false;
-    do {
-        touch_endpoint = false;
-        for (int i = 0; i < polygon.point.size(); ++i) {
-            if (on_line(polygon.point[i], ray)) {
-                touch_endpoint = true;
-                break;
+    bool in_polygon(const POS& a, const POS& left_top = LEFT_TOP) {
+        
+        for (int i = 0; i < point.size(); ++i) {
+            if (a == point[i]) return true; /* a is polygon's point */
+        }
+
+        build_line();
+        for (int i = 0; i < line.size(); ++i) {
+            if (line[i].on_line(a)) {
+                return true; /* a is on polygon's line */
             }
         }
-        if (touch_endpoint) ray.modify(-1, 0); /* should be modified according to problem */
-    } while (touch_endpoint);
 
-    int times = 0;
-    for (int i = 0; i < polygon.line.size(); ++i) {
-        if (A_intersect_B(ray, polygon.line[i])) {
+        POS endpoint(left_top); /* should be modified according to problem */
+        LINESEG ray(a, endpoint);
+        bool touch_endpoint = false;
+        do {
+            touch_endpoint = false;
+            for (int i = 0; i < point.size(); ++i) {
+                if (ray.on_lineseg(point[i])) {
+                    touch_endpoint = true;
+                    break;
+                }
+            }
+            if (touch_endpoint) ray.modify(-1, 0); /* should be modified according to problem */
+        } while (touch_endpoint);
+
+        int times = 0;
+        for (int i = 0; i < line.size(); ++i) {
+            POS tmp(ray.intersect(line[i]));
+            if (tmp == NO_INTERSECT || tmp == PARALLEL) {
+                continue;
+            }
             ++times;
         }
+        return (times&1);
     }
-
-    return (times&1);
-}
+};
 
 int main() {
     return 0;
