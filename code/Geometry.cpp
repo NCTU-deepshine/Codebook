@@ -177,7 +177,7 @@ public:
 class POLYGON {
 public:
     vector<POS> point;
-    vector<LINE> line;
+    vector<LINESEG> line;
 
     void add_points(const POS& x) {
         point.push_back(x);
@@ -190,9 +190,9 @@ public:
     void build_line() {
         if (line.size() != 0) return; /* if it has build */
         for (int i = 1; i < point.size(); ++i) {
-            line.push_back(LINE(point[i], point[i-1]));
+            line.push_back(LINESEG(point[i], point[i-1]));
         }
-        line.push_back(LINE(point[0], point[point.size()-1]));
+        line.push_back(LINESEG(point[0], point[point.size()-1]));
     }
 
     double area() {
