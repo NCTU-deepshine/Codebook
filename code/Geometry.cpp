@@ -103,6 +103,10 @@ public:
         return POS( (B2*C1-B1*C2)/(A2*B1-A1*B2), (A1*C2-A2*C1)/(A2*B1-A1*B2) ); /* sometimes has -0 */
     }
 
+    double dist(const POS& a) const {
+        return fabs(vec.y*a.x - vec.x*a.y + vec.x*start.y - vec.y*start.x)/sqrt(vec.y*vec.y+vec.x*vec.x);
+    }
+
     friend ostream& operator<<(ostream& out, const LINE& line) {
         cout << line.start << "-->" << line.end << endl;
         return out;
