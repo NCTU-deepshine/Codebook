@@ -4,10 +4,10 @@
 #include <cstdio>
 #include <algorithm>
 #define EPS 1e-10
-#define LEFT_TOP POS(100, 100)
-#define NO_INTERSECT POS(-1, -1)
-#define PARALLEL POS(-1, -1)
-#define COLINE POS(0, 0)
+#define LEFT_TOP POS(1000, 1000)
+#define NO_INTERSECT POS(-1234, -1234)
+#define PARALLEL POS(-1001, -1001)
+#define COLINE POS(1234, 1234)
 
 using namespace std;
 
@@ -32,6 +32,11 @@ public:
     POS operator -() {
         POS tmp(-x, -y);
         return tmp;
+    }
+
+    double dist(const POS& rhs) const {
+        T tmp_x = x-rhs.x, tmp_y = y-rhs.y;
+        return sqrt(tmp_x*tmp_x+tmp_y*tmp_y);
     }
 
     friend ostream& operator<<(ostream& out, const POS& pos) {
@@ -61,6 +66,30 @@ public:
 
     LINE(const POS& end) : /* start point is origin */
         start(0, 0), end(end), vec(end) {}
+
+    LINE(const T a, const T b, const T c) : /* given line by ax+by+c = 0 */
+        start(0, 0), end(0, 0), vec(-b, a) {
+        if (a == 0) {
+            start.y = end.y = -c/b;
+            end.x = -b;
+        }
+        else if (b == 0) {
+            start.x = end.x = -c/a;
+            end.y = a;
+        }
+        else if (c == 0) {
+            end.x = -b; end.y = a;
+        }
+        else {
+            start.y = -c/b; end.x = -c/a;
+            vec.x = -c/a; vec.y = c/b;
+        }
+    }
+
+    LINE build_orthogonal(const POS& point) const {
+        T c = -(vec.x*point.x + vec.y*point.y);
+        return LINE(vec.x, vec.y, c);
+    }
 
     T length2() const { /* square */
         T x = start.x - end.x, y = start.y - end.y;
@@ -107,8 +136,16 @@ public:
         return fabs(vec.y*a.x - vec.x*a.y + vec.x*start.y - vec.y*start.x)/sqrt(vec.y*vec.y+vec.x*vec.x);
     }
 
+    double dist(const LINE& rhs) const {
+        POS intersect_point = intersect(rhs);
+        if (intersect_point == PARALLEL) {
+            return dist(rhs.start);
+        }
+        return 0;
+    }
+
     friend ostream& operator<<(ostream& out, const LINE& line) {
-        cout << line.start << "-->" << line.end << endl;
+        out << line.start << "-->" << line.end << " vec: " << line.vec << endl;
         return out;
     }
 };
@@ -148,6 +185,27 @@ public:
 
     bool clockwise(const LINE& a) const { /* to see if LINE a is in b's clockwise way */
         return cross(a) > 0;
+    }
+
+    double dist(const POS& a) const {
+        double ortho_dist = this->LINE::dist(a);
+        LINE ortho_line = build_orthogonal(a);
+        POS intersect_point = this->LINE::intersect(ortho_line);
+        if (on_lineseg(intersect_point)) return ortho_dist;
+        else return min(a.dist(this->start), a.dist(this->end));
+    }
+
+    double dist(const LINE& line) const {
+        POS intersect_point = this->LINE::intersect(line);
+        if (intersect_point == COLINE) return 0;
+        if (intersect_point == PARALLEL) return dist(line.start);
+        if (on_lineseg(intersect_point)) return 0;
+        return min(line.dist(start), line.dist(end));
+    }
+
+    double dist(const LINESEG& line) const {
+        return min( min(dist(line.start), dist(line.end)),
+                    min(line.dist(start), line.dist(end)) );
     }
 
     POS intersect(const LINESEG& rhs) const {
