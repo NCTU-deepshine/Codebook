@@ -55,6 +55,28 @@ POS const operator-(const POS& lhs, const POS& rhs) {
     return POS(lhs) += (tmp);
 }
 
+bool cmp(const POS& lhs, const POS& rhs) {
+    return (lhs.x < rhs.x) || ( (lhs.x == rhs.x)&&(lhs.y < rhs.y) );
+}
+
+T cross(POS& o, POS& a, POS& b) {
+    return (a.x-o.x)*(b.y-o.y) - (a.y-o.y)*(b.x-o.x);
+}
+
+void convex_hull(POS* points, POS* need, int n) {
+    sort(points, points+n, cmp);
+    int index = 0;
+    for (int i = 0; i < n; ++i) {
+        while (index >= 2 && cross(need[index-2], need[index-1], points[i]) <= 0) index--;
+        need[index++] = points[i];
+    }
+    int half_point = index+1;
+    for (int i = n-2; i >= 0; --i) {
+        while (index >= half_point && cross(need[index-2], need[index-1], points[i]) <= 0) index--;
+        need[index++] = points[i];
+    } /* be careful that start point will appear in fisrt and last in need array */
+}
+
 class LINE {
 public:
     POS start, end, vec;
