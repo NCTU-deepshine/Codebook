@@ -134,7 +134,7 @@ public:
             if (start.y != a.y) return false;
             return true;
         }
-        return ( (a.x-start.x)/vec.x*vec.y + start.y ) == a.y;
+        return fabs(( (a.x-start.x)/vec.x*vec.y + start.y )- a.y) < EPS;
     }
 
     bool operator/(const LINE& rhs) const { /* to see if this line parallel to LINE rhs */
@@ -167,7 +167,7 @@ public:
     }
 
     friend ostream& operator<<(ostream& out, const LINE& line) {
-        out << line.start << "-->" << line.end << " vec: " << line.vec << endl;
+        out << line.start << "-->" << line.end << " vec: " << line.vec;
         return out;
     }
 };
@@ -257,7 +257,7 @@ public:
 class POLYGON {
 public:
     vector<POS> point;
-    vector<LINE> line;
+    vector<LINESEG> line;
 
     void add_points(const POS& x) {
         point.push_back(x);
@@ -270,9 +270,9 @@ public:
     void build_line() {
         if (line.size() != 0) return; /* if it has build */
         for (int i = 1; i < point.size(); ++i) {
-            line.push_back(LINE(point[i], point[i-1]));
+            line.push_back(LINESEG(point[i], point[i-1]));
         }
-        line.push_back(LINE(point[0], point[point.size()-1]));
+        line.push_back(LINESEG(point[0], point[point.size()-1]));
     }
 
     double area() {
