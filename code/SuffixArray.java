@@ -9,7 +9,9 @@ class SuffixArray{
 
     SuffixArray(CharSequence S){
         length = S.length();
-        int[] rank = new int[length];
+        rank = new int[length];
+        entries = new Entry[length];
+        int[] temp = new int[length];
         int counter;
         for (int i=0;i<length;i++){
             entries[i] = new Entry(i);
@@ -27,7 +29,7 @@ class SuffixArray{
                 entries[i].a = temp[i];
                 entries[i].b = rank[(entries[i].index+step)%length];
             }
-            Arrays.parallelSort(entries);
+            countingSort(entries);
             rank[entries[0].index] = temp[0] = counter = 0;
             for(int i=1;i<length;i++){
                 if(entries[i].a != entries[i-1].a || entries[i].b != entries[i-1].b) counter++;
@@ -35,18 +37,18 @@ class SuffixArray{
             }
             step <<= 1;
         }
-        return rank;
     }
     
     void countingSort(Entry[] input){
         int[] counter = new int[length];
         Entry[] temp = new Entry[length];
-        for(int i=0;i<length;i++) counter[input.b]++;
+        for(int i=0;i<length;i++) counter[input[i].b]++;
         for(int i=1;i<length;i++) counter[i] += counter[i-1];
-        for(int i=length-1;length>=0;length--) temp[counter[--input[i].b]--] = input[i];
-        for(int i=0;i<length;i++) counter[temp.a]++;
+        for(int i=length-1;i>=0;i--) temp[--counter[input[i].b]] = input[i];
+        Arrays.fill(counter, 0);
+        for(int i=0;i<length;i++) counter[temp[i].a]++;
         for(int i=1;i<length;i++) counter[i] += counter[i-1];
-        for(int i=length-1;length>=0;length--) input[counter[--temp[i].a]] = temp[i];
+        for(int i=length-1;i>=0;i--) input[--counter[temp[i].a]] = temp[i];
     }
 
     class Entry implements Comparable<Entry>{
