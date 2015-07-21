@@ -1,4 +1,7 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <cstdio>
+#include <cmath>
+#include <algorithm>
 using namespace std;
 
 struct COORDINATE {
@@ -6,7 +9,7 @@ struct COORDINATE {
 };
 
 bool cmp(const COORDINATE& x, const COORDINATE& y) {
-    return x.x > y.x;
+    return x.x < y.x;
 }
 
 /* x: data, y: index */
@@ -25,10 +28,10 @@ struct RangeTree2D {
         container = new COORDINATE*[rank], left = new int*[rank], right = new int*[rank];
         is_left = new bool*[rank];
         for (int i = 0; i < rank; ++i) {
-            container[i] = new COORDINATE[length];
-            left[i] = new int[length];
-            right[i] = new int[length];
-            is_left[i] = new bool[length];
+            container[i] = new COORDINATE[capacity];
+            left[i] = new int[capacity];
+            right[i] = new int[capacity];
+            is_left[i] = new bool[capacity];
         }
         for (int i = 0; i < length; ++i) {
             container[0][i].x = input[i];
@@ -80,11 +83,14 @@ struct RangeTree2D {
     }
 
     int query(int height, int start, int finish, int k) {
+        //cout << height << " @ " << start << " " << finish << " size: " << k << endl;
         if (height == 0) return container[height][start].x;
-        int size = left[height][finish] - left[height][start];
-        if (is_left[height][finish]) ++size;
-        if (size >= k) return query(height-1, left[height][start], min(left[height][finish], left[height][start]/(1<<(height-1))*(1<<(height-1))+(1<<(height-1))-1), k);
-        else return query(height-1, right[height][start], min(right[height][finish], right[height][start]/(1<<(height-1))*(1<<(height-1))+(1<<(height-1))-1), k-size);
+        int left_size = left[height][finish] - left[height][start];
+        if (is_left[height][finish]) ++left_size;
+        int right_size = finish-start+1-left_size;
+        //cout << "size: " << left_size << " " << right_size  << endl;
+        if (left_size >= k) return query(height-1, left[height][start], min(left[height][finish], left[height][start]+left_size-1), k);
+        else return query(height-1, right[height][start], min(right[height][finish], right[height][start]+right_size-1), k-left_size);
     }
 
     void print() {
@@ -104,16 +110,21 @@ struct RangeTree2D {
     }
 };
 
+int input[100005];
 int main () {
-    int input[] = {1, 2, 3, 4, 5, 6, 7};
+    int n, m;
+    scanf("%d%d", &n, &m);
+    for (int i = 0; i < n; ++i) {
+        scanf("%d", &input[i]);
+    }
     RangeTree2D range;
-    range.init(input, 7);
-    range.print();
-    //for (int i = 0; i < 7; ++i) {
-    //    for (int j = i+1; j < 7; ++j) {
-    //        cout << i << " " << j << " " << 2 << ": " << range.query(i, j, 2) << endl;
-    //    }
-    //}
-    //cout << range.query(0, 3, 3) << endl;
+    range.init(input, n);
+    for (int i = 0; i < m; ++i) {
+        int a, b, k;
+        scanf("%d%d%d", &a, &b, &k);
+        printf("%d\n", range.query(a-1, b-1, k));
+    }
     return 0;
 }
+
+/* Pass POJ 2104 */
