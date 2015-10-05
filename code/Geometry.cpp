@@ -1,15 +1,12 @@
-#include <iostream>
-#include <cmath>
-#include <vector>
-#include <cstdio>
-#include <algorithm>
+#include <bits/stdc++.h>
+using namespace std;
+
 #define EPS 1e-10
 #define LEFT_TOP POS(1000, 1000)
 #define NO_INTERSECT POS(-1234, -1234)
 #define PARALLEL POS(-1001, -1001)
 #define COLINE POS(1234, 1234)
-
-using namespace std;
+const double PI = acos(-1.0);
 
 typedef double T;
 
@@ -55,16 +52,18 @@ POS const operator-(const POS& lhs, const POS& rhs) {
     return POS(lhs) += (tmp);
 }
 
-bool cmp(const POS& lhs, const POS& rhs) {
+bool cmp_convex(const POS& lhs, const POS& rhs) {
     return (lhs.x < rhs.x) || ( (lhs.x == rhs.x)&&(lhs.y < rhs.y) );
 }
 
-T cross(POS& o, POS& a, POS& b) {
-    return (a.x-o.x)*(b.y-o.y) - (a.y-o.y)*(b.x-o.x);
+inline T cross(const POS& o, const POS& a, const POS& b) {
+    double value = (a.x-o.x)*(b.y-o.y) - (a.y-o.y)*(b.x-o.x);
+    if (fabs(value) < EPS) return 0;
+    return value;
 }
 
-void convex_hull(POS* points, POS* need, int n) {
-    sort(points, points+n, cmp);
+void convex_hull(POS* points, POS* need, int& n) {
+    sort(points, points+n, cmp_convex);
     int index = 0;
     for (int i = 0; i < n; ++i) {
         while (index >= 2 && cross(need[index-2], need[index-1], points[i]) <= 0) index--;
@@ -75,19 +74,22 @@ void convex_hull(POS* points, POS* need, int n) {
         while (index >= half_point && cross(need[index-2], need[index-1], points[i]) <= 0) index--;
         need[index++] = points[i];
     } /* be careful that start point will appear in fisrt and last in need array */
+    n = index;
 }
 
 class LINE {
 public:
     POS start, end, vec;
+    double angle;
+    LINE() {}
     LINE(const T& st_x, const T& st_y, const T& ed_x, const T& ed_y) :
-        start(st_x, st_y), end(ed_x, ed_y), vec(end - start) {}
+        start(st_x, st_y), end(ed_x, ed_y), vec(end - start), angle(atan2(vec.x, vec.y)) {}
 
     LINE(const POS& start, const POS& end) :
-        start(start), end(end), vec(end - start) {}
+        start(start), end(end), vec(end - start), angle(atan2(vec.x, vec.y)) {}
 
     LINE(const POS& end) : /* start point is origin */
-        start(0, 0), end(end), vec(end) {}
+        start(0, 0), end(end), vec(end), angle(atan2(vec.x, vec.y)) {}
 
     LINE(const T a, const T b, const T c) : /* given line by ax+by+c = 0 */
         start(0, 0), end(0, 0), vec(-b, a) {
@@ -106,6 +108,7 @@ public:
             start.y = -c/b; end.x = -c/a;
             vec.x = -c/a; vec.y = c/b;
         }
+        angle = atan2(vec.x, vec.y);
     }
 
     LINE build_orthogonal(const POS& point) const {
@@ -253,6 +256,32 @@ public:
         return tmp;
     }
 };
+
+inline bool cmp_half_plane(const LINE &a,const LINE &b){
+    if(fabs(a.angle-b.angle) < EPS) return cross(a.start, a.end, b.start) < 0;
+    return a.angle > b.angle;
+}
+
+void half_plane_intersection(LINE* a, LINE* need, POS* answer, int &n){
+    int m = 1, front = 0, rear = 1;
+    sort(a, a+n, cmp_half_plane);
+    for(int i = 1; i < n; ++i){
+        if( fabs(a[i].angle-a[m-1].angle) > EPS ) a[m++] = a[i];
+    }
+    need[0] = a[0], need[1] = a[1];
+    for(int i = 2; i < m; ++i){
+        while (front<rear&&cross(a[i].start, a[i].end, need[rear].intersect(need[rear-1]))<0) rear--;
+        while (front<rear&&cross(a[i].start, a[i].end, need[front].intersect(need[front+1]))<0) front++;
+        need[++rear] = a[i];
+    }
+    while (front<rear&&cross(need[front].start,need[front].end, need[rear].intersect(need[rear-1]))<0) rear--;
+    while (front<rear&&cross(need[rear].start,need[rear].end, need[front].intersect(need[front+1]))<0) front++;
+    if (front==rear) return;
+
+    n = 0;
+    for (int i=front; i<rear; ++i) answer[n++] = need[i].intersect(need[i+1]);
+    if(rear>front+1) answer[n++] = need[front].intersect(need[rear]);
+}
 
 class POLYGON {
 public:
