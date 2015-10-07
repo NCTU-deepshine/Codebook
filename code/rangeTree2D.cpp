@@ -1,3 +1,9 @@
+#include <cstdio>
+#include <cmath>
+#include <algorithm>
+
+using namespace std;
+
 struct COORDINATE {
     int x, y;
 };
@@ -26,7 +32,7 @@ struct RangeTree2D {
             is_left[i] = new bool[capacity];
         }
         for (int i = 0; i < capacity; ++i) {
-            container[0][i].x = i>length?0:input[i];
+            container[0][i].x = i>=length?0:input[i];
             container[0][i].y = i;
         }
         sort(container[0], container[0]+length, cmp);
@@ -51,7 +57,7 @@ struct RangeTree2D {
             left[height][now] = l_index;
             right[height][now] = r_index;
 
-            if (l_index < middle && (r_index > finish || container[height-1][l_index].y < container[height-1][r_index].y)) {
+            if (l_index < middle && (r_index > finish || container[height-1][l_index].y <= container[height-1][r_index].y)) {
                 container[height][now] = container[height-1][l_index];
                 is_left[height][now] = true;
                 ++l_index;
