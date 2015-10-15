@@ -1,4 +1,5 @@
-\documentclass {article}
+\documentclass [landscape,10pt,a4paper,twocolumn]{article}
+\title {NCTU electron Codebook}
 \usepackage {listings}
 \usepackage {color}
 \usepackage [left=1.2cm, right=1.2cm, top=1.2cm, bottom=1.2cm]{geometry}
@@ -30,36 +31,58 @@
   stepnumber=2,                    % the step between two line-numbers. If it's 1, each line will be numbered
   stringstyle=\color{mymauve},     % string literal style
   tabsize=2,                       % sets default tabsize to 2 spaces
-  title=\lstname                   % show the filename of files included with \lstinputlisting; also try caption instead of title
+  %title=\lstname                   % show the filename of files included with \lstinputlisting; also try caption instead of title
 }
 \begin {document}
-\title {NCTU_electron Codebook}
+\maketitle
+\tableofcontents
+\section{.vimrc}
 \lstinputlisting [language=bash] {code/.vimrc}
+\section{AC Actomaton}
 \lstinputlisting [language=c++] {code/AC_Automaton.cpp}
+\section{Combinatoion}
 \lstinputlisting [language=c++] {code/combination.cpp}
 %\lstinputlisting [language=java] {code/ConvexHull.java}
+\section{Double LCA}
 \lstinputlisting [language=c++] {code/double_lca.cpp}
+\section{Flow (Dinics)}
 \lstinputlisting [language=java] {code/Flow_Dinics.java}
+\section{Geometry}
 \lstinputlisting [language=c++] {code/Geometry.cpp}
 %\lstinputlisting [language=c++] {code/Hash.cpp}
+\section{Simple Tabulation Hash}
 \lstinputlisting [language=java] {code/SimpleTabulationHash.java}
+\section{IDA*}
 \lstinputlisting [language=c++] {code/IDAstar.cpp}
+\section{inverse}
 \lstinputlisting [language=c++] {code/inverse.cpp}
+\section{KM}
 \lstinputlisting [language=c++] {code/km.cpp}
+\section{Linear Prime}
 \lstinputlisting [language=c++] {code/linear_prime.cpp}
 %\lstinputlisting [language=java] {code/MyHashMap.java}
+\section{Mod Combine}
 \lstinputlisting [language=c++] {code/modCombine.cpp}
+\section{Range Tree 2D, kth number}
 \lstinputlisting [language=c++] {code/rangeTree2D.cpp}
-%\lstinputlisting [language=java] {code/Scan.java}
+\section{Range Tree 2D, rectangle}
+\lstinputlisting [language=c++] {code/rangeTree2D_rq.cpp}
+\section{Scan (JAVA)}
+\lstinputlisting [language=java] {code/Scan.java}
 %\lstinputlisting [language=java] {code/SegmentTree_Basic.java}
 %\lstinputlisting [language=java] {code/SegmentTree.java}
+\section{Segment Tree}
 \lstinputlisting [language=c++] {code/SegmentTree.cpp}
+\section{Splay Tree}
 \lstinputlisting [language=java] {code/SplayTree.java}
-\lstinputlisting [language=c++] {code/SuffixArray.cpp}
+%\lstinputlisting [language=c++] {code/SuffixArray.cpp}
+\section{Suffix Array}
 \lstinputlisting [language=java] {code/SuffixArray.java}
 %\lstinputlisting [language=c++] {code/tarjan_lca.cpp}
 %\lstinputlisting [language=java] {code/Tester.java}
+\section{Treap}
 \lstinputlisting [language=c++] {code/treap.cpp}
 %\lstinputlisting [language=java] {code/Treap.java}
+\section{Z Algorithm}
 \lstinputlisting [language=c++] {code/z_algorithm.cpp}
 \end {document}

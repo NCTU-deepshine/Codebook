@@ -283,6 +283,26 @@ void half_plane_intersection(LINE* a, LINE* need, POS* answer, int &n){
     if(rear>front+1) answer[n++] = need[front].intersect(need[rear]);
 }
 
+void rotating_calipers(int& ans, POS* need, int& n) {
+    --n;
+    if (n == 2) {
+        ans = need[0].dist(need[1]);
+        return;
+    }
+
+    int now = 2;
+    for (int i = 0; i < n; ++i) {
+        LINE target(need[i], need[i+1]);
+        double pre = target.dist(need[now]);
+        for (; now != i; now = (now+1)%(n)) {
+            double tmp = target.dist(need[now]);
+            if (tmp < pre) break;
+            pre = tmp;
+        }
+        now = (now-1+n)%n;
+        ans = max(ans, max(need[i].dist(need[now]), need[i+1].dist(need[now])));
+    }
+}
 class POLYGON {
 public:
     vector<POS> point;
