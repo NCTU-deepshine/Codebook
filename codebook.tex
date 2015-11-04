@@ -1,14 +1,23 @@
 \documentclass [landscape,10pt,a4paper,twocolumn]{article}
 \title {NCTU electron Codebook}
+\usepackage{parskip}
+\usepackage{xeCJK} 
+\setCJKmainfont{Heiti TC}
 \usepackage {listings}
 \usepackage {color}
-\usepackage [left=1.2cm, right=1.2cm, top=1.2cm, bottom=1.2cm]{geometry}
+\usepackage [left=1.2cm, right=1.2cm, top=2.2cm, bottom=1.2cm]{geometry}
 \definecolor {mygreen}{rgb}{0,0.6,0}
 \definecolor {mygray}{rgb}{0.5,0.5,0.5}
 \definecolor {mymauve}{rgb}{0.58,0,0.82}
+\usepackage{fancyheadings}
+\rhead{\thepage}
+\lhead{National Chiao Tung University, NCTU\_electron}
+\pagestyle{fancy}
+\cfoot{}
+
 \lstset { %
   backgroundcolor=\color{white},   % choose the background color; you must add \usepackage{color} or \usepackage{xcolor}
-  basicstyle=\small,               % the size of the fonts that are used for the code
+  basicstyle=\small\ttfamily,               % the size of the fonts that are used for the code
   breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
   breaklines=true,                 % sets automatic line breaking
   captionpos=b,                    % sets the caption-position to bottom
@@ -34,7 +43,8 @@
   %title=\lstname                   % show the filename of files included with \lstinputlisting; also try caption instead of title
 }
 \begin {document}
-\maketitle
+\thispagestyle{fancy}
+%\maketitle
 \tableofcontents
 \newpage
 \section{.vimrc}
@@ -90,4 +100,6 @@
 %\lstinputlisting [language=java] {code/Treap.java}
 \section{Z Algorithm}
 \lstinputlisting [language=c++] {code/z_algorithm.cpp}
+\newpage
+\input{note.tex}
 \end {document}
