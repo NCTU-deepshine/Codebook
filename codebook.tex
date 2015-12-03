@@ -1,8 +1,11 @@
-\documentclass [landscape,10pt,a4paper,twocolumn]{article}
+%!TEX TS-program = xelatex
+%!TEX encoding = UTF-8 Unicode
+\documentclass [landscape,10pt,a4paper,twocolumn,nofonts]{article}
 \title {NCTU electron Codebook}
 \usepackage{parskip}
 \usepackage{xeCJK} 
-\setCJKmainfont{Heiti TC}
+\setmainfont{Ubuntu Mono}
+\setCJKmainfont{WenQuanYi Micro Hei}
 \usepackage {listings}
 \usepackage {color}
 \usepackage [left=1.2cm, right=1.2cm, top=2.2cm, bottom=1.2cm]{geometry}
@@ -47,58 +50,60 @@
 %\maketitle
 \tableofcontents
 \newpage
-\section{.vimrc}
+\subsection{.vimrc}
 \lstinputlisting [language=bash] {code/.vimrc}
-\section{AC Actomaton}
+\subsection{AC Actomaton}
 \lstinputlisting [language=c++] {code/AC_Automaton.cpp}
-\section{Combinatoion}
+\subsection{Combinatoion}
 \lstinputlisting [language=c++] {code/combination.cpp}
 %\lstinputlisting [language=java] {code/ConvexHull.java}
-\section{Decomposition}
+\subsection{Decomposition}
 \lstinputlisting [language=java] {code/Decomposition.java}
-\section{Double LCA}
+\subsection{Double LCA}
 \lstinputlisting [language=c++] {code/double_lca.cpp}
-\section{Flow (Dinics)}
+\subsection{Flow (Dinics)}
 \lstinputlisting [language=java] {code/Flow_Dinics.java}
-\section{Geometry}
+\subsection{Geometry}
 \lstinputlisting [language=c++] {code/Geometry.cpp}
 %\lstinputlisting [language=c++] {code/Hash.cpp}
-\section{Simple Tabulation Hash}
+\subsection{Simple Tabulation Hash}
 \lstinputlisting [language=java] {code/SimpleTabulationHash.java}
-\section{IDA*}
+\subsection{IDA*}
 \lstinputlisting [language=c++] {code/IDAstar.cpp}
-\section{inverse}
+\subsection{inverse}
 \lstinputlisting [language=c++] {code/inverse.cpp}
-\section{Karatsuba (FFFT)}
+\subsection{Karatsuba (FFFT)}
 \lstinputlisting [language=java] {code/Karatsuba.java}
-\section{KM}
+\subsection{KM}
 \lstinputlisting [language=c++] {code/km.cpp}
-\section{Linear Prime}
+\subsection{Linear Prime}
 \lstinputlisting [language=c++] {code/linear_prime.cpp}
 %\lstinputlisting [language=java] {code/MyHashMap.java}
-\section{Mod Combine}
+\subsection{Max clique}
+\lstinputlisting [language=java] {code/MaxClique.java}
+\subsection{Mod Combine}
 \lstinputlisting [language=c++] {code/modCombine.cpp}
-\section{Range Tree 2D, kth number}
+\subsection{Range Tree 2D, kth number}
 \lstinputlisting [language=c++] {code/rangeTree2D.cpp}
-\section{Range Tree 2D, rectangle}
+\subsection{Range Tree 2D, rectangle}
 \lstinputlisting [language=c++] {code/rangeTree2D_rq.cpp}
-\section{Scan (JAVA)}
+\subsection{Scan (JAVA)}
 \lstinputlisting [language=java] {code/Scan.java}
 %\lstinputlisting [language=java] {code/SegmentTree_Basic.java}
 %\lstinputlisting [language=java] {code/SegmentTree.java}
-\section{Segment Tree}
+\subsection{Segment Tree}
 \lstinputlisting [language=c++] {code/SegmentTree.cpp}
-\section{Splay Tree}
+\subsection{Splay Tree}
 \lstinputlisting [language=java] {code/SplayTree.java}
 %\lstinputlisting [language=c++] {code/SuffixArray.cpp}
-\section{Suffix Array}
+\subsection{Suffix Array}
 \lstinputlisting [language=java] {code/SuffixArray.java}
 %\lstinputlisting [language=c++] {code/tarjan_lca.cpp}
 %\lstinputlisting [language=java] {code/Tester.java}
-\section{Treap}
+\subsection{Treap}
 \lstinputlisting [language=c++] {code/treap.cpp}
 %\lstinputlisting [language=java] {code/Treap.java}
-\section{Z Algorithm}
+\subsection{Z Algorithm}
 \lstinputlisting [language=c++] {code/z_algorithm.cpp}
 \newpage
 \input{note.tex}
