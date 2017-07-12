@@ -6,3 +6,6 @@ Java src/.idea/
 *aux
 *dvi
 *toc
+*.class
+*.swp
+*.un~
