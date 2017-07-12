@@ -9,7 +9,7 @@ public class SegmentTree{
 		rank = 1;
 		while(1<<(rank++) < input.length);
 		capacity = 1<<rank>>1;
-		System.out.println("rank = "+rank+", cap = "+capacity);
+		//System.out.println("rank = "+rank+", cap = "+capacity);
 		tree = new Entry[1<<rank];
 		build(0, 1, capacity);
 	}
@@ -37,14 +37,14 @@ public class SegmentTree{
 
 	void update(int target, int value){
 		int index = target-1+capacity;
-		int diff = value - tree[index].value;
-		maintain(index, diff);
+        tree[index].value = value;
+		maintain(index>>1);
 	}
 
-	void maintain(int index, int diff){
-		tree[index].value += diff;
+	void maintain(int index){
+		tree[index].value = operate(tree[lc(index)].value, tree[rc(index)].value);
 		if(index == 1) return;
-		maintain(index<<1, diff);
+		maintain(index>>1);
 	}
 
 	int lc(int x){
@@ -64,7 +64,7 @@ public class SegmentTree{
 			this.lb = lb;
 			this.rb = rb;
 			this.id = id;
-			value = -1;
+			value = 0;
 		}
 
 	}
